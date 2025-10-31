@@ -11,20 +11,23 @@ This repository is a comprehensive, single-page application demonstrating a **mi
 
 TalentFlow provides an HR team with tools to manage Jobs, Candidates, and Assessments, all without a real backend server.
 
-### 1. 💼 Jobs Management
+### 1. 📊 Dashboard Overview
+* **Hiring Dashboard:** A compact analytics view that tracks key metrics — **Active Jobs**, **New Applicants (last 7 days)**, and **Candidates in Tech Stage** — updated dynamically based on local data.
+
+### 2. 💼 Jobs Management
 * **Jobs Board:** A list view supporting **server-like pagination and filtering** (by title, status, and tags).
 * **CRUD Operations:** Create/Edit job details via a modal/route with validation (title required, unique slug).
 * **Status Control:** Archive/Unarchive jobs.
 * **Reordering:** Implements **drag-and-drop reordering** with **optimistic updates** and **rollback on simulated API failure** (500 error).
 * **Deep Linking:** Jobs are accessible directly via a dedicated route: `/jobs/:jobId`.
 
-### 2. 👥 Candidate Pipeline
+### 3. 👥 Candidate Pipeline
 * **Virtualized List:** Supports 1000+ seeded candidates with efficient **client-side search** (name/email) and **server-like filtering** (current stage).
 * **Candidate Profile:** Route `/candidates/:id` shows a **timeline of status changes** and attached notes.
 * **Kanban Board:** Move candidates between stages (**applied, screen, tech, offer, hired, rejected**) using an intuitive **drag-and-drop Kanban interface**.
 * **Notes:** Functionality to attach notes with basic rendering of **@mentions** (suggestions from a local list).
 
-### 3. 📝 Assessment Builder & Runtime
+### 4. 📝 Assessment Builder & Runtime
 * **Job-Specific Builder:** Allows HR to create job-specific assessments by adding **sections** and various **question types**:
     * Single/Multi-choice
     * Short/Long Text
