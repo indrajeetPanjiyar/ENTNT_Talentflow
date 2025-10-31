@@ -1,83 +1,116 @@
-# TalentFlow — Hiring workflow demo (React + Vite)
+#  TalentFlow — A Mini Hiring Platform Demo (React + Vite)
 
-This repository is a small, single-page hiring-management demo built with React + Vite. It demonstrates an in-browser persistence layer (IndexedDB via `idb`), a compact UI for jobs, candidates and assessments, and responsive/mobile-friendly navigation patterns.
+**Live Demo:** [https://entnt-talentflow-inky.vercel.app/](https://entnt-talentflow-inky.vercel.app/)
+**GitHub Repository:** [https://github.com/indrajeetPanjiyar/ENTNT_Talentflow](https://github.com/indrajeetPanjiyar/ENTNT_Talentflow)
 
-This README documents how the platform is organized, how data flows, the important routes/pages/components, and how to run and troubleshoot the app locally.
+This repository is a comprehensive, single-page application demonstrating a **mini hiring management platform** built with **React** and **Vite**. It was completed as a front-end technical assignment focusing on complex state management, optimistic UI updates, local persistence, and simulated network interactions.
 
 ---
 
-## Quick start
+## ✨ Features and Core Flows
 
-Requirements: Node.js (16+ recommended), npm
+TalentFlow provides an HR team with tools to manage Jobs, Candidates, and Assessments, all without a real backend server.
 
-1. Install dependencies
+### 1. 💼 Jobs Management
+* **Jobs Board:** A list view supporting **server-like pagination and filtering** (by title, status, and tags).
+* **CRUD Operations:** Create/Edit job details via a modal/route with validation (title required, unique slug).
+* **Status Control:** Archive/Unarchive jobs.
+* **Reordering:** Implements **drag-and-drop reordering** with **optimistic updates** and **rollback on simulated API failure** (500 error).
+* **Deep Linking:** Jobs are accessible directly via a dedicated route: `/jobs/:jobId`.
 
-```powershell
-cd C:\Users\indra\Desktop\Talentflow
-npm install
+### 2. 👥 Candidate Pipeline
+* **Virtualized List:** Supports 1000+ seeded candidates with efficient **client-side search** (name/email) and **server-like filtering** (current stage).
+* **Candidate Profile:** Route `/candidates/:id` shows a **timeline of status changes** and attached notes.
+* **Kanban Board:** Move candidates between stages (**applied, screen, tech, offer, hired, rejected**) using an intuitive **drag-and-drop Kanban interface**.
+* **Notes:** Functionality to attach notes with basic rendering of **@mentions** (suggestions from a local list).
+
+### 3. 📝 Assessment Builder & Runtime
+* **Job-Specific Builder:** Allows HR to create job-specific assessments by adding **sections** and various **question types**:
+    * Single/Multi-choice
+    * Short/Long Text
+    * Numeric (with range)
+    * File Upload (stub, reads to Data URL)
+* **Live Preview:** A pane that renders the assessment as a **fillable form** instantly as it's being built.
+* **Form Runtime:** Supports validation rules (**required, numeric range, max length**) and **conditional questions** (e.g., show Q3 only if Q1 = 'Yes').
+* **Persistence:** Both the assessment builder state and candidate responses are stored **locally**.
+
+---
+
+## 🏗️ Technical Decisions & Architecture
+
+This project simulates a full-stack application environment using modern front-end tools.
+
+### 💾 Data & Persistence (The "Backend")
+* **Local Persistence:** All application state is persisted locally using **IndexedDB** via the lightweight **`idb`** library.
+* **Data Restoration:** The app's state is fully restored from IndexedDB upon page refresh.
+* **Seeding:** The database is seeded on the first run with **25 jobs (mixed status), 1,000 candidates**, and **3+ complex assessments**.
+
+### 📡 Simulated API Layer
+* **No Real Server:** The application operates entirely without a traditional backend.
+* **Latency & Errors:** A custom hook, `useSimulatedApi.js`, wraps all write operations to **inject artificial latency (200–1200ms)** and a **5–10% error rate** on critical endpoints (like reordering). This is crucial for testing the **optimistic UI** pattern and error handling.
+* **Write-Through:** Persistence logic handles "writing through" the simulated network layer directly to IndexedDB.
+
+### 🌐 High-Level Architecture
+* **App Structure:** A Single-Page Application (SPA) where global state is lifted to `src/App.jsx`.
+* **State Management:** Top-level state (`data`) holds all jobs, candidates, and assessments and is passed down to pages/components.
+* **Navigation:** Uses a simple internal `Maps(page, id)` function to manage logical routes, providing a seamless SPA experience without full reliance on `react-router-dom` (though it is included in `package.json`).
+* **Mobile UX:** Implements a responsive layout with a floating action button (FAB) for quick navigation on small screens.
+
+### Core Technologies
+
+| Technology | Purpose |
+| :--- | :--- |
+| **React** & **Vite** | Primary UI library and build tool. |
+| **idb** | Lightweight wrapper for IndexedDB (core persistence layer). |
+| **msw** | For mock request and api calls.|
+| **Tailwind CSS** | Utility-first framework for rapid and responsive styling. |
+| **lucide-react** | Clean, modern icons. |
+| **`useSimulatedApi.js`** | Custom hook for network simulation (latency/errors/rollback). |
+
+---
+
+## 📁 Project Folder Structure
+- The project uses a standard **Vite + React** structure with a logical organization based on application domain and type of file, promoting clean separation of concerns and maintainability.
+```
+├── public/
+| ├── mockServiceWorker.js
+├── src/
+│ ├── components/
+│ │ ├── Assessments/
+│ │ ├── Candidates/
+│ │ ├── Jobs/
+│ │ ├── Layout/
+│ ├── data/
+│ │ └── seed.js
+│ │ └── assessmentData.js
+│ ├── hooks/
+│ │ └── useSimulatedApi.js
+│ ├── lib/
+│ │ ├── dataPersistence.js
+│ │ ├── indexedDB.js
+│ ├── mocks/
+│ │ ├── browser.js
+│ │ ├── handlers.js
+│ ├── pages/
+│ │ ├── AssessmentsBuilder.jsx
+│ │ ├── CandidateProfile.jsx
+│ │ ├── CandidatesBoard.jsx
+│ │ ├── DashboardPage.jsx
+│ │ ├── JobDetail.jsx
+│ │ └── JobsBoard.jsx
+│ ├── App.jsx
+│ ├── index.css
+│ └── main.jsx
+├── index.html
+├── package.json
+└── vite.config.js
 ```
 
-2. Run the dev server
+## ⚙️ Data Models (Shapes)
 
-```powershell
-npm run dev
-```
+The primary data structures persisted in IndexedDB:
 
-3. Open the app in your browser (Vite prints the local URL, typically http://localhost:5173)
-
-4. On first run the app seeds the database with mock jobs, candidates and assessments. To re-seed later delete the `talentFlowDB` entry from DevTools → Application → IndexedDB and refresh the app.
-
-## What this app does (at a glance)
-
-- Jobs Board: list, create, edit, reorder and delete jobs. Jobs have a `status` (active/archived), `tags`, `order`, and free-text details.
-- Candidates: per-job candidates with simple pipeline stages (applied, screen, tech, offer, hired, rejected).
-- Assessment Builder: create per-job assessments made of sections and questions. Preview/simulate taking an assessment. File-upload question type reads files into memory as data URLs for preview and download.
-- Persistence: all data is stored in IndexedDB using `idb`. Initial dataset is seeded on first run.
-- Mobile UX: responsive layout with a top-right mobile FAB that opens quick navigation (Dashboard, Jobs, Candidates, Assessments).
-
-## Tech & dependencies
-
-Core dependencies (as listed in `package.json`):
-
-- react, react-dom — UI library
-- vite — dev server and build tool
-- idb — a tiny IndexedDB wrapper used for on-device persistence
-- dexie — included in `package.json` but the current persistence implementation uses `idb`
-- lucide-react — icons
-- tailwindcss / @tailwindcss/vite — styling utility (used via classes in JSX)
-- react-router-dom — present in `package.json` but the app uses an internal `navigate(page, id)` function instead of router-based URLs
-
-Dev dependencies include Vite plugins and ESLint configuration used for local development.
-
-## High-level architecture
-
-- Single-page React app (no server required).
-- Data source: IndexedDB (`src/lib/indexedDB.js`) using `idb`.
-  - On first run the app seeds data from `src/data/seed.js`.
-  - `src/lib/dataPersistence.js` provides `loadData()` and `saveData()` wrappers that the app uses to persist changes.
-- UI state is lifted to `App.jsx` in the top-level `data` state object and passed down to pages/components.
-  - `App.jsx` also contains handlers for updates (create/edit job, reorder, delete, candidate updates, assessments save) and calls `saveData()` to persist changes.
-- Simulated API latency: `src/hooks/useSimulatedApi.js` wraps UI updates and simulates success/failure latencies for optimistic UI patterns.
-
-## Navigation & routes (logical pages)
-
-The app uses a simple `navigate(page, id)` approach (emulating routes). Supported logical pages:
-
-- `dashboard` — DashboardPage (overview)
-- `jobs` — JobsBoard (grid/list of jobs)
-- `jobs/:id` — JobDetail (job detail/edit view; navigate('jobs/:id', jobId) )
-- `candidates` — CandidatesBoard (pipeline Kanban-like columns)
-- `candidates/:id` — CandidateProfile (profile view)
-- `assessments` — AssessmentsBuilder (builder + preview)
-
-The mobile FAB (top-right) offers quick navigation to Dashboard / Jobs / Candidates / Assessments on small screens.
-
-## Data models (shapes)
-
-Primary shapes used by the app:
-
-- Job
-
+### Job
 ```js
 {
   id: string,
@@ -89,10 +122,10 @@ Primary shapes used by the app:
   description: string,
   createdAt: ISOString
 }
+
 ```
 
-- Candidate
-
+### Candidate
 ```js
 {
   id: string,
@@ -102,12 +135,11 @@ Primary shapes used by the app:
   stage: string, // applied, screen, tech, offer, hired, rejected
   appliedDate: ISOString,
   timeline: [{ status, timestamp }],
-  notes: string[]
+  notes: string[] // basic @mention rendering
 }
 ```
 
-- Assessment
-
+### Assessment (Stored per-job)
 ```js
 {
   jobId: string, // key for assessments store
@@ -122,38 +154,59 @@ Primary shapes used by the app:
 }
 ```
 
-File uploads (preview only):
+## Getting Started
+- Prerequisites
+  - Node.js (16+ recommended)
+  - npm
+ 
+- Local Setup
+  - **Clone the repository and navigate to the project directory:**
+  ```
+      git clone [https://github.com/indrajeetPanjiyar/ENTNT_Talentflow.git](https://github.com/indrajeetPanjiyar/ENTNT_Talentflow.git)
+      cd ENTNT_Talentflow
+  ```
+  - **Install dependencies:**
+  ```
+  npm install
+  ```
+  - **Run the development server:**
+  ```
+  npm run dev
+  ```
+  - **Open in Browser:** Vite will print the local URL (typically http://localhost:5173).
+  - **Build for Production**
+  ```bash
+  npm run build
+  npm run preview
+  ```
+ 
+## Troubleshooting & Resetting Data
+- Data Seeding: The app seeds the mock data on first run.
+- To Reset Data: If you need to regenerate the initial dataset, open DevTools → Application → IndexedDB, delete the talentFlowDB entry, and refresh the application.
+- Stale UI: If the UI appears stale after code changes, stop and restart the dev server
 
-```js
-{ name: string, type: string, size: number, dataUrl: string }
-```
+## 🚧 Known Issues
 
-## Important behaviors
-
-- Seeding: `indexedDB.js` seeds the DB on first run using `seedData()`.
-- Load/save: `dataPersistence.loadData()` reads from IndexedDB; `saveData()` writes back. `App.jsx` calls these on mount and on data change.
-- Optimistic updates: editing, reordering, deletions are applied locally first; `useSimulatedApi` may simulate failure and the app will rollback the change.
-- Deleting a job: removes the job and associated candidates and assessments (optimistic; rollback on failure).
-- Assessments: saving writes to IndexedDB keyed by `jobId`. File-upload questions create a Data URL in memory for preview/download; no server upload implemented.
-
-## Files to inspect (quick references)
-
-- `src/App.jsx` — main state and handlers
-- `src/lib/indexedDB.js` and `src/lib/dataPersistence.js` — persistence
-- `src/pages/JobsBoard.jsx`, `src/components/Jobs/JobCard.jsx`, `src/components/Jobs/JobModal.jsx` — job flows
-- `src/pages/AssessmentsBuilder.jsx`, `src/components/Assessments/*` — assessment builder and preview
-- `src/hooks/useSimulatedApi.js` — simulated API wrapper
-
-## Troubleshooting
-
-- If UI shows stale values after code changes, stop and restart the dev server. Also clear HMR overlay errors and check the browser console.
-- If seeded data needs to be regenerated, remove the `talentFlowDB` IndexedDB entry in DevTools → Application and refresh the app. 
-- If you previously used MSW/service worker, unregister any service worker in DevTools → Application and reload.
+* **Kanban Board Drag-and-Drop Integration**:
+    Integrating drag-and-drop functionality for the Kanban board is in progress. While the UI supports moving cards between columns, updating the underlying data state is **not yet fully implemented**. Ensure that state changes are properly handled and persisted when cards are moved. Further enhancements are planned to synchronize UI interactions with the mock data layer.
+* **IndexedDB Connection Problem**:
+    Occasionally, the application may fail to fully connect or restore state from **IndexedDB** on initial load, especially after a cache clear or browser update. This can result in stale or missing data. If issues persist, try **clearing the `talentFlowDB` entry from DevTools → Application → IndexedDB** and refreshing the app.
+* **Mock Data Limitations**:
+    The analytics dashboard currently uses static mock data. For dynamic, production-like metrics, the `DatabaseService` mock layer must be extended or replaced with a real data API.
 
 ---
 
-If you'd like I can also:
-- Add a short API reference section documenting `dbOperations` and `dataPersistence` functions.
-- Wire file uploads into IndexedDB or to a mock server.
+## 📈 Future Improvements
 
-Tell me what you'd like next.
+* **Implement User Authentication:**
+    * Introduce a **Login/Sign-up flow** for secure access.
+    * Establish **Role-Based Access Control (RBAC)** with two key roles:
+        * **Admin/HR:** Full permissions to **create, update, and manage** jobs, assessments, and candidate data.
+        * **Candidate/User:** Limited permissions, primarily allowing them to **view assigned tasks** and **complete assessments**. 
+* Integrate the application with a **real backend** (e.g., Node.js/Express) to manage data persistence externally.
+* Fully **link candidates to jobs/assessments** to enable more granular, dynamic analytics reporting.
+* Add **toast notifications** (e.g., `react-toastify`) for improved user feedback on CRUD operations and errors.
+* Improve **accessibility** by conducting detailed ARIA and Lighthouse audits.
+* Implement **server-side pagination** for candidates and jobs to handle massive datasets more efficiently.
+
+---
