@@ -1,7 +1,7 @@
 #  TalentFlow — A Mini Hiring Platform Demo (React + Vite)
 
-**Live Demo:** [https://entnt-talentflow-inky.vercel.app/](https://entnt-talentflow-inky.vercel.app/)
-**GitHub Repository:** [https://github.com/indrajeetPanjiyar/ENTNT_Talentflow](https://github.com/indrajeetPanjiyar/ENTNT_Talentflow)
+- **Live Demo:** [https://entnt-talentflow-inky.vercel.app/](https://entnt-talentflow-inky.vercel.app/)
+- **GitHub Repository:** [https://github.com/indrajeetPanjiyar/ENTNT_Talentflow](https://github.com/indrajeetPanjiyar/ENTNT_Talentflow)
 
 This repository is a comprehensive, single-page application demonstrating a **mini hiring management platform** built with **React** and **Vite**. It was completed as a front-end technical assignment focusing on complex state management, optimistic UI updates, local persistence, and simulated network interactions.
 
