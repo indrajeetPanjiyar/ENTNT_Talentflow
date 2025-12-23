@@ -165,8 +165,8 @@ The primary data structures persisted in IndexedDB:
 - Local Setup
   - **Clone the repository and navigate to the project directory:**
   ```
-      git clone [https://github.com/indrajeetPanjiyar/ENTNT_Talentflow.git](https://github.com/indrajeetPanjiyar/ENTNT_Talentflow.git)
       cd ENTNT_Talentflow
+      git clone https://github.com/indrajeetPanjiyar/ENTNT_Talentflow.git
   ```
   - **Install dependencies:**
   ```
